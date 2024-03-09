@@ -2,11 +2,9 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
-const dotenv = require("dotenv");
+const dotenv = require("dotenv").config();
 //import routes
 const authRouter = require("./routes/auth_route");
-
-dotenv.config();
 
 // 1)MIDDLEWARES
 //route middlewares for all other endpoints
@@ -17,8 +15,7 @@ app.use(express.json());
 app.use("/api/auth", authRouter);
 
 // 3)MONGODB CONNECTION
-const MONGO_URL =
-  "mongodb+srv://priyanshu:something@task-ninja-backend.eaaeqyc.mongodb.net/?retryWrites=true&w=majority&appName=task-ninja-backend";
+const MONGO_URL = process.env.DB_CONNECT;
 mongoose
   .connect(MONGO_URL)
   .then(() => console.log("Connected to MongoDB 💚"))

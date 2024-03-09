@@ -76,7 +76,6 @@ const login = async (req, res, next) => {
 };
 
 module.exports = {
-  //   getAllUser,
   signup,
   login,
 };
