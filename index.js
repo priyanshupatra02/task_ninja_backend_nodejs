@@ -5,6 +5,7 @@ const cors = require("cors");
 const dotenv = require("dotenv").config();
 //import routes
 const authRouter = require("./routes/auth_route");
+const todoRouter = require("./routes/todo_route");
 
 // 1)MIDDLEWARES
 //route middlewares for all other endpoints
@@ -13,6 +14,7 @@ app.use(express.json());
 
 // 2)ROUTING
 app.use("/api/auth", authRouter);
+app.use("/api/todo", todoRouter);
 
 // 3)MONGODB CONNECTION
 const MONGO_URL = process.env.DB_CONNECT;
