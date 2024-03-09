@@ -21,9 +21,9 @@ const createTodo = async (req, res, next) => {
 //update todo
 const updateTodo = async (req, res, next) => {
   try {
-    // const { id } = req.params.id; // assuming the 'id' is passed as a parameter in the URL
+    const { id } = req.params.id; // assuming the 'id' is passed as a parameter in the URL
     const { task, status } = req.body;
-    const existingTodo = await Todo.findOne({ _id: req.params.id });
+    const existingTodo = await Todo.findOne(id);
     if (!existingTodo) {
       return next(new CreateError("Todo not found!", 404));
     }
@@ -40,8 +40,24 @@ const updateTodo = async (req, res, next) => {
 };
 
 //delete todo
+const deleteTodo = async (req, res, next) => {
+  try {
+    const { id } = req.params.id; // assuming the 'id' is passed as a parameter in the URL
+    const existingTodo = await Todo.findOne(id);
+    if (!existingTodo) {
+      return next(new CreateError("Todo not found!", 404));
+    }
+    const deletedTodo = await existingTodo.deleteOne(id);
+    res.status(200).json({
+      message: "Todo deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
   createTodo,
   updateTodo,
+  deleteTodo,
 };
