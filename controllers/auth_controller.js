@@ -15,23 +15,23 @@ const signup = async (req, res, next) => {
     //encrypt the password
     const hashedPassword = await bcrypt.hash(req.body.password, 12);
 
+    //assign JWT to user
+    const token = jwt.sign({ _id: user }, "secretKey", {
+      expiresIn: "90d",
+    });
+
     //create new user
     const newUser = await User.create({
       name: req.body.name,
       email: req.body.email,
       password: hashedPassword,
-    });
-
-    //assign JWT to user
-    const token = jwt.sign({ _id: newUser._id }, "secretKey123", {
-      expiresIn: "90d",
+      jwt: token,
     });
 
     //send the created user in the response
     res.status(201).json({
       message: "User registered successfully",
       user: newUser,
-      jwt: token,
     });
   } catch (error) {
     next(error);
