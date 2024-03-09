@@ -18,6 +18,21 @@ const createTodo = async (req, res, next) => {
   }
 };
 //get all todos
+const getAllTodo = async (req, res, next) => {
+  try {
+    const allTodos = await Todo.find({});
+    if (!allTodos) {
+      return next(new CreateError("No Todos added yet!", 404));
+    }
+
+    res.status(200).json({
+      message: "All Todos",
+      data: allTodos,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 //update todo
 const updateTodo = async (req, res, next) => {
   try {
@@ -58,6 +73,7 @@ const deleteTodo = async (req, res, next) => {
 
 module.exports = {
   createTodo,
+  getAllTodo,
   updateTodo,
   deleteTodo,
 };
