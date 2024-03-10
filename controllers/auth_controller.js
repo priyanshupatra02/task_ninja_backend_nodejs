@@ -16,7 +16,7 @@ const signup = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(req.body.password, 12);
 
     //assign JWT to user
-    const token = jwt.sign({ _id: user }, "secretKey", {
+    const token = jwt.sign({ _id: user }, process.env.JWT_SECRET, {
       expiresIn: "90d",
     });
 
@@ -57,7 +57,7 @@ const login = async (req, res, next) => {
     }
 
     //if user and password is valid, assign a new JWT to user
-    const token = jwt.sign({ _id: user._id }, "secretKey123", {
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "90d",
     });
 
