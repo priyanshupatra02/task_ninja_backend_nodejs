@@ -4,15 +4,39 @@ const CreateError = require("../utils/app_err_util");
 //create todo
 const createTodo = async (req, res, next) => {
   try {
+    const userId = req.params.userId;
     const { task, status } = req.body;
-    const newTodo = await Todo.create({
-      task: task,
-      status: status,
-    });
-    res.status(201).json({
-      message: "Todo created successfully",
-      data: newTodo,
-    });
+    
+    // if no body is passed, then ->
+    if (!task || status === undefined) {
+      return next(new CreateError("Please provide task and status", 400));
+    }
+
+    // Find the existing todo or create a new one if it doesn't exist
+    const existingTodo = await Todo.findOne({ userId: userId });
+    if (existingTodo) {
+      existingTodo.tasks.push({
+        task: task,
+        status: status,
+      });
+
+      const savedTodo = await existingTodo.save();
+
+      res.status(201).json({
+        message: "New Todo created successfully",
+        data: savedTodo,
+      });
+    } else {
+      // If the 'todo' doesn't exist, create a new one
+      const newTodo = await Todo.create({
+        userId: userId,
+        tasks: [{ task: task, status: status }],
+      });
+      res.status(201).json({
+        message: "Todo created successfully",
+        data: newTodo,
+      });
+    }
   } catch (error) {
     next(error);
   }

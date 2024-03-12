@@ -34,6 +34,7 @@ const signup = async (req, res, next) => {
       user: newUser,
     });
   } catch (error) {
+    console.error(error);
     next(error);
   }
 };
@@ -67,8 +68,8 @@ const login = async (req, res, next) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        jwt: token,
       },
-      jwt: token,
     });
   } catch (error) {
     next(error);
