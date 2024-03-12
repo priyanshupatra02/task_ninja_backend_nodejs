@@ -6,7 +6,7 @@ const createTodo = async (req, res, next) => {
   try {
     const userId = req.params.userId;
     const { task, status } = req.body;
-    
+
     // if no body is passed, then ->
     if (!task || status === undefined) {
       return next(new CreateError("Please provide task and status", 400));
@@ -44,6 +44,7 @@ const createTodo = async (req, res, next) => {
 //get all todos
 const getAllTodo = async (req, res, next) => {
   try {
+    console.log(req.header);
     const allTodos = await Todo.find({});
     if (!allTodos) {
       return next(new CreateError("No Todos added yet!", 404));
