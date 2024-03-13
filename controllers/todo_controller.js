@@ -42,37 +42,76 @@ const createTodo = async (req, res, next) => {
   }
 };
 //get all todos
-const getAllTodo = async (req, res, next) => {
+const getTodosByUserId = async (req, res, next) => {
   try {
-    console.log(req.header);
-    const allTodos = await Todo.find({});
-    if (!allTodos) {
-      return next(new CreateError("No Todos added yet!", 404));
+    const userId = req.params.userId;
+
+    const todosDetails = await Todo.findOne({
+      userId: userId,
+    });
+
+    if (!todosDetails) {
+      return next(new CreateError("No such user found!", 404));
     }
 
-    res.status(200).json({
-      message: "All Todos",
-      data: allTodos,
+    if (!todosDetails.tasks || !Array.isArray(todosDetails.tasks)) {
+      return res.status(404).json({
+        message: "Todos not found for the user.",
+      });
+    }
+
+    //map the array structure
+    const mappedTodos = todosDetails.tasks.map((todos) => ({
+      id: todos._id,
+      task: todos.task,
+      status: todos.status,
+    }));
+
+    return res.status(200).json({
+      message: "Todos",
+      todos: mappedTodos,
     });
   } catch (error) {
     next(error);
   }
 };
+
 //update todo
 const updateTodo = async (req, res, next) => {
   try {
-    const { id } = req.params.id; // assuming the 'id' is passed as a parameter in the URL
+    const userId = req.params.userId;
+    const todoIdToUpdate = req.params.todoId; // assuming the 'id' is passed as a parameter in the URL
+
     const { task, status } = req.body;
-    const existingTodo = await Todo.findOne(id);
+    const existingTodo = await Todo.findOne({ userId: userId });
+
     if (!existingTodo) {
-      return next(new CreateError("Todo not found!", 404));
+      return next(new CreateError("Todo not found for the user!", 404));
     }
-    existingTodo.task = task;
-    existingTodo.status = status;
+
+    //find the specific task to update
+    const taskToUpdateIndex = existingTodo.tasks.findIndex(
+      (task) => task._id.toString() === todoIdToUpdate
+    );
+
+    if (taskToUpdateIndex === -1) {
+      return next(new CreateError("No such todo found for the user!", 404));
+    }
+
+    if (task && status) {
+      existingTodo.tasks[taskToUpdateIndex].task = task;
+      existingTodo.tasks[taskToUpdateIndex].status = status;
+    } else if (task !== undefined && task !== null) {
+      existingTodo.tasks[taskToUpdateIndex].task = task;
+    } else if (status !== undefined && status !== null) {
+      existingTodo.tasks[taskToUpdateIndex].status = status;
+    }
+
     const updatedTodo = await existingTodo.save();
+
     res.status(200).json({
       message: "Todo updated successfully",
-      data: updatedTodo,
+      todos: updatedTodo,
     });
   } catch (error) {
     next(error);
@@ -82,14 +121,30 @@ const updateTodo = async (req, res, next) => {
 //delete todo
 const deleteTodo = async (req, res, next) => {
   try {
-    const { id } = req.params.id; // assuming the 'id' is passed as a parameter in the URL
-    const existingTodo = await Todo.findOne(id);
+    const userId = req.params.userId;
+    const todoIdToDelete = req.params.todoId; // assuming the 'id' is passed as a parameter in the URL
+
+    const existingTodo = await Todo.findOne({ userId: userId });
+
     if (!existingTodo) {
-      return next(new CreateError("Todo not found!", 404));
+      return next(new CreateError("No such Todo found!", 404));
     }
-    const deletedTodo = await existingTodo.deleteOne(id);
+
+    //find the specific task to delete
+    const taskToDeleteIndex = existingTodo.tasks.findIndex(
+      (task) => task._id.toString() === todoIdToDelete
+    );
+
+    if (taskToDeleteIndex === -1) {
+      return next(new CreateError("No such todo found for the user!", 404));
+    }
+    // Remove the specific semester from the array
+    existingTodo.tasks.splice(taskToDeleteIndex, 1);
+    const updatedTodo = await existingTodo.save();
+
     res.status(200).json({
       message: "Todo deleted successfully",
+      todos: updatedTodo,
     });
   } catch (error) {
     next(error);
@@ -98,7 +153,7 @@ const deleteTodo = async (req, res, next) => {
 
 module.exports = {
   createTodo,
-  getAllTodo,
+  getTodosByUserId,
   updateTodo,
   deleteTodo,
 };

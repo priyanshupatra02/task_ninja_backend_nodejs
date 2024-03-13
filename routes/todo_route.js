@@ -7,11 +7,11 @@ const router = express.Router(); //create a router instance
 //create todo
 router.post("/:userId", verifyBearerToken, todoController.createTodo);
 //get todo
-router.get("/", verifyBearerToken, todoController.getAllTodo);
+router.get("/:userId", verifyBearerToken, todoController.getTodosByUserId);
 // update todo
-router.put("/:id", todoController.updateTodo);
+router.put("/:userId/:todoId", verifyBearerToken, todoController.updateTodo);
 //delete todo
-router.delete("/:id", todoController.deleteTodo);
+router.delete("/:userId/:todoId", verifyBearerToken, todoController.deleteTodo);
 // router.delete("/todo/{id}", todoController.deleteTodo);
 
 module.exports = router; //export the router instance
