@@ -5,7 +5,6 @@ A Node.js-powered 🍀 RESTful API for managing a to-do list, utilizing MongoDB 
 
 ## Features
 - CRUD operations for to-do items.
-- BLoC pattern for state management.
 - User authentication for data protection.
 - Real-time data synchronization.
 
