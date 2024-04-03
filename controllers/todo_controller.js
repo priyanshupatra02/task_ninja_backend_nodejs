@@ -51,7 +51,10 @@ const getTodosByUserId = async (req, res, next) => {
     });
 
     if (!todosDetails) {
-      return next(new CreateError("No such user found!", 404));
+      return res.status(200).json({
+        message: "You haven't added any todos yet.",
+        tasks: [],
+      });
     }
 
     if (!todosDetails.tasks || !Array.isArray(todosDetails.tasks)) {
@@ -69,7 +72,7 @@ const getTodosByUserId = async (req, res, next) => {
 
     return res.status(200).json({
       message: "Todos",
-      todos: mappedTodos,
+      tasks: mappedTodos,
     });
   } catch (error) {
     next(error);
